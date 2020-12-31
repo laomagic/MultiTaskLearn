@@ -27,3 +27,4 @@ generate_data.py  --预处理数据
 joint_dataset.py -- 生成训练batch数据
 train.py  -- 训练
 utils.py  --工具
+infer.py --推理
