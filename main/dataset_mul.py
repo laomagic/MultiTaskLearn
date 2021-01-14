@@ -110,6 +110,35 @@ class DataPrecessForSentence(Dataset):
         assert len(seq_mask) == self.max_length
         assert len(seq_segment) == self.max_length
         return seq, seq_mask, seq_segment
+    
+
+def collate_fn(batch):
+    """
+    动态padding,返回Tensor
+    :param batch:
+    :return: 每个batch id和label
+    """
+
+    def padding(indice, max_length, pad_idx=0):
+        """
+        填充每个batch的句子长度
+        """
+        # pad_indice = [item + [pad_idx] * max(0, max_length - len(item)) for item in indice]
+        pad_indice = [item + [pad_idx] * (max_length - len(item)) if len(item) < max_length else item[:max_length] for
+                      item in indice]
+        return torch.tensor(pad_indice, dtype=torch.long)
+
+    input_ids = [data["input_ids"] for data in batch]
+    attention_mask = [data["attention_mask"] for data in batch]
+    token_type_ids = [data["token_type_ids"] for data in batch]
+    # max_length = max([len(t) for t in input_ids])  # batch中样本的最大的长度
+    max_length = 312  # batch中样本的最大的长度
+    labels = torch.tensor([data["label"] for data in batch], dtype=torch.long)
+
+    input_ids_padded = padding(input_ids, max_length)  # 填充每个batch的sample
+    attention_mask_padded = padding(attention_mask, max_length)  # 填充每个batch的sample
+    token_type_ids_padded = padding(token_type_ids, max_length)  # 填充每个batch的sample
+    return input_ids_padded, attention_mask_padded, token_type_ids_padded, labels
 
 
 class MultitaskDataloader:
