@@ -268,3 +268,13 @@ class LabelSmoothingCrossEntropy(nn.Module):
                                                                  target,
                                                                  reduction=self.reduction,
                                                                  ignore_index=self.ignore_index)
+        
+        
+ def calculate_weight(self, kpi, y):
+     """累积准确率
+        y:准确率
+     """
+        kpi = max(0.1, kpi)
+        kpi = min(0.99, kpi)
+        w = -1 * ((1 - kpi) ** y) * log(kpi)
+        return w
